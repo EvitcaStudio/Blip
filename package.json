@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "esdoc": "^1.1.0",
+    "esdoc-ecmascript-proposal-plugin": "^1.0.0",
+    "esdoc-standard-plugin": "^1.0.0",
+    "uglify-js": "^3.17.4",
+    "uglifyjs": "^2.4.11",
+    "webpack": "^5.89.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-dist": "npx webpack && uglifyjs dist/blip.min.mjs -m -c --comments -o dist/blip.min.mjs && esdoc -c esdoc.json"
+  },
+  "devDependencies": {
+    "webpack-cli": "^5.1.4"
+  }
+}

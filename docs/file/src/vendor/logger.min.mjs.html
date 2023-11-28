@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/vendor/logger.min.mjs | Blip</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Class for managing sounds"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Blip"><meta property="twitter:description" content="Class for managing sounds"><meta property="twitter:image" content="./evitcastudio_round_branding.png"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/EvitcaStudio/Blip"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/blip.mjs~Blip.html">Blip</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/blip.mjs~BlipManager.html">BlipManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/instanceMarker.mjs~InstanceMarker.html">InstanceMarker</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#vendor">vendor</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/vendor/logger.min.mjs~Logger.html">Logger</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/vendor/logger.min.mjs</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/** 
+ * @file A small library to class up log messages.
+ * 
+ * @version 1.0.0
+ * @author https://github.com/doubleactii
+ * @copyright Copyright (c) 2022 Evitca Studio
+ * @license Logger does not have a license at this time. For licensing contact the author
+ */
+class Logger{constructor(s){this.RESET=&quot;[0m&quot;,this.BRIGHT=&quot;[1m&quot;,this.DIM=&quot;[2m&quot;,this.UNDERSCORE=&quot;[4m&quot;,this.BLINK=&quot;[5m&quot;,this.REVERSE=&quot;[7m&quot;,this.HIDDEN=&quot;[8m&quot;,this.FG_BLACK=&quot;[30m&quot;,this.FG_RED=&quot;[31m&quot;,this.FG_GREEN=&quot;[32m&quot;,this.FG_YELLOW=&quot;[33m&quot;,this.FG_BLUE=&quot;[34m&quot;,this.FG_MAGENTA=&quot;[35m&quot;,this.FG_CYAN=&quot;[36m&quot;,this.FG_WHITE=&quot;[37m&quot;,this.FG_GRAY=&quot;[90m&quot;,this.BG_BLACK=&quot;[40m&quot;,this.BG_RED=&quot;[41m&quot;,this.BG_GREEN=&quot;[42m&quot;,this.BG_YELLOW=&quot;[43m&quot;,this.BG_BLUE=&quot;[44m&quot;,this.BG_MAGENTA=&quot;[45m&quot;,this.BG_CYAN=&quot;[46m&quot;,this.BG_WHITE=&quot;[47m&quot;,this.BG_GRAY=&quot;[100m&quot;,this.TYPE_SPACER_LENGTH=13,this.types={default:this.FG_WHITE},this.currentType=&quot;&quot;,this.SPACE_CHAR=&quot; &quot;,this.FG_COLORS={};for(let s=0;s&lt;=255;s++)this.FG_COLORS[s]=&quot;[38;5;&quot;+s+&quot;m&quot;;this.BG_COLORS={};for(let s=0;s&lt;=255;s++)this.BG_COLORS[s]=&quot;[48;5;&quot;+s+&quot;m&quot;;Array.isArray(s)&amp;&amp;this.registerTypes(s)}prefix(s){return&quot;string&quot;==typeof s&amp;&amp;(this.currentType=s),this}message(s=&quot;log&quot;,...t){var e,i,h,r=this.currentType||&quot;&quot;;0===r.length?console[s](...t):(e=r.length&gt;=this.TYPE_SPACER_LENGTH,h=(i=this.types[r.toLowerCase()]?this.types[r.toLowerCase()]:this.types.default).includes(&quot;&quot;),!globalThis.window||h?console[s](i+r+this.SPACE_CHAR.repeat(Math.max(this.TYPE_SPACER_LENGTH-r.length,e?1:0))+&quot;|&quot;+this.RESET,...t):console[s](&quot;%c&quot;+r+this.SPACE_CHAR.repeat(Math.max(this.TYPE_SPACER_LENGTH-r.length,e?1:0))+&quot;|&quot;,i,...t)),this.currentType=&quot;&quot;}log(...s){this.message(&quot;log&quot;,...s)}info(...s){this.message(&quot;info&quot;,...s)}error(...s){this.message(&quot;error&quot;,...s)}warn(...s){this.message(&quot;warn&quot;,...s)}assert(...s){console.assert(...s)}debug(...s){this.message(&quot;debug&quot;,...s)}count(s){console.count(s)}countReset(s){console.countReset(s)}table(s,t){console.table(s,t)}time(s){this.message(&quot;time&quot;,s)}timeLog(s){this.message(&quot;timeLog&quot;,s)}timeEnd(s){this.message(&quot;timeEnd&quot;,s)}trace(...s){this.message(&quot;trace&quot;,...s)}group(s){this.message(&quot;group&quot;,s)}groupCollapsed(s){console.groupCollapsed(s)}groupEnd(){console.groupEnd()}clear(){console.clear()}registerType(s,t){this.types[s]||&quot;string&quot;==typeof s&amp;&amp;&quot;string&quot;==typeof t&amp;&amp;(this.types[s.toLowerCase()]=t)}registerTypes(t){if(Array.isArray(t))for(let s=0;s&lt;t.length;s++)this.registerType(t[s].type,t[s].ansi)}unregisterType(s){this.types[s]&amp;&amp;delete this.types[s]}}export{Logger};</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>
