@@ -29,9 +29,10 @@
 <nav class="navigation" data-ice="nav"><div>
   <ul>
     
-  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/blip.mjs~Blip.html">Blip</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/blip.mjs~BlipManager.html">BlipManager</a></span></span></li>
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/blip.mjs~BlipComponent.html">BlipComponent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/blip.mjs~BlipManagerSingleton.html">BlipManagerSingleton</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/instanceMarker.mjs~InstanceMarker.html">InstanceMarker</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-BlipManager">BlipManager</a></span></span></li>
 </ul>
 </div>
 </nav>
@@ -42,8 +43,12 @@
      * This is distance at which the marker is removed from the screen. (Distance from the center of the screen)
      */
     static REMOVAL_DISTANCE = 50;
+    
+    constructor(pMapInstance, pIconSettings = { &apos;atlasName&apos;: &apos;&apos;, &apos;iconName&apos;: &apos;&apos; }, pMarkerSettings = { &apos;showsDistance&apos;: false, &apos;removalDistance&apos;: InstanceMarker.REMOVAL_DISTANCE }) {
 
-}</code></pre>
+    }
+}
+</code></pre>
 
 </div>
 

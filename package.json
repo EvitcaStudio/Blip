@@ -4,7 +4,6 @@
     "esdoc-ecmascript-proposal-plugin": "^1.0.0",
     "esdoc-standard-plugin": "^1.0.0",
     "uglify-js": "^3.17.4",
-    "uglifyjs": "^2.4.11",
     "webpack": "^5.89.0"
   },
   "scripts": {

@@ -1,14 +1,20 @@
 window.esdocSearchIndex = [
   [
-    "./src/blip.mjs~blip",
-    "class/src/blip.mjs~Blip.html",
-    "<span>Blip</span> <span class=\"search-result-import-path\">./src/blip.mjs</span>",
+    "./src/blip.mjs~blipcomponent",
+    "class/src/blip.mjs~BlipComponent.html",
+    "<span>BlipComponent</span> <span class=\"search-result-import-path\">./src/blip.mjs</span>",
     "class"
   ],
   [
     "./src/blip.mjs~blipmanager",
-    "class/src/blip.mjs~BlipManager.html",
+    "variable/index.html#static-variable-BlipManager",
     "<span>BlipManager</span> <span class=\"search-result-import-path\">./src/blip.mjs</span>",
+    "variable"
+  ],
+  [
+    "./src/blip.mjs~blipmanagersingleton",
+    "class/src/blip.mjs~BlipManagerSingleton.html",
+    "<span>BlipManagerSingleton</span> <span class=\"search-result-import-path\">./src/blip.mjs</span>",
     "class"
   ],
   [
@@ -306,21 +312,153 @@ window.esdocSearchIndex = [
     "file"
   ],
   [
-    "src/blip.mjs~blip.buffer",
-    "class/src/blip.mjs~Blip.html#static-member-BUFFER",
-    "src/blip.mjs~Blip.BUFFER",
+    "src/blip.mjs~blipcomponent#constructor",
+    "class/src/blip.mjs~BlipComponent.html#instance-constructor-constructor",
+    "src/blip.mjs~BlipComponent#constructor",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipcomponent#instance",
+    "class/src/blip.mjs~BlipComponent.html#instance-member-instance",
+    "src/blip.mjs~BlipComponent#instance",
     "member"
   ],
   [
-    "src/blip.mjs~blip.max_dist",
-    "class/src/blip.mjs~Blip.html#static-member-MAX_DIST",
-    "src/blip.mjs~Blip.MAX_DIST",
+    "src/blip.mjs~blipcomponent#remove",
+    "class/src/blip.mjs~BlipComponent.html#instance-method-remove",
+    "src/blip.mjs~BlipComponent#remove",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipcomponent.buffer",
+    "class/src/blip.mjs~BlipComponent.html#static-member-BUFFER",
+    "src/blip.mjs~BlipComponent.BUFFER",
     "member"
   ],
   [
-    "src/blip.mjs~blipmanager.max_blips",
-    "class/src/blip.mjs~BlipManager.html#static-member-MAX_BLIPS",
-    "src/blip.mjs~BlipManager.MAX_BLIPS",
+    "src/blip.mjs~blipcomponent.max_display",
+    "class/src/blip.mjs~BlipComponent.html#static-member-MAX_DISPLAY",
+    "src/blip.mjs~BlipComponent.MAX_DISPLAY",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipcomponent.max_dist",
+    "class/src/blip.mjs~BlipComponent.html#static-member-MAX_DIST",
+    "src/blip.mjs~BlipComponent.MAX_DIST",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#activeblips",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-member-activeBlips",
+    "src/blip.mjs~BlipManagerSingleton#activeBlips",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#constructor",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-constructor-constructor",
+    "src/blip.mjs~BlipManagerSingleton#constructor",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#hideblips",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-method-hideBlips",
+    "src/blip.mjs~BlipManagerSingleton#hideBlips",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#interfacehandle",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-member-interfaceHandle",
+    "src/blip.mjs~BlipManagerSingleton#interfaceHandle",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#logger",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-member-logger",
+    "src/blip.mjs~BlipManagerSingleton#logger",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#manageblips",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-method-manageBlips",
+    "src/blip.mjs~BlipManagerSingleton#manageBlips",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#pause",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-method-pause",
+    "src/blip.mjs~BlipManagerSingleton#pause",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#paused",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-member-paused",
+    "src/blip.mjs~BlipManagerSingleton#paused",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#resume",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-method-resume",
+    "src/blip.mjs~BlipManagerSingleton#resume",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#track",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-method-track",
+    "src/blip.mjs~BlipManagerSingleton#track",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#untrack",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-method-untrack",
+    "src/blip.mjs~BlipManagerSingleton#untrack",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton.center_screen_position",
+    "class/src/blip.mjs~BlipManagerSingleton.html#static-member-CENTER_SCREEN_POSITION",
+    "src/blip.mjs~BlipManagerSingleton.CENTER_SCREEN_POSITION",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton.game_size",
+    "class/src/blip.mjs~BlipManagerSingleton.html#static-member-GAME_SIZE",
+    "src/blip.mjs~BlipManagerSingleton.GAME_SIZE",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton.game_size_half",
+    "class/src/blip.mjs~BlipManagerSingleton.html#static-member-GAME_SIZE_HALF",
+    "src/blip.mjs~BlipManagerSingleton.GAME_SIZE_HALF",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton.max_blips",
+    "class/src/blip.mjs~BlipManagerSingleton.html#static-member-MAX_BLIPS",
+    "src/blip.mjs~BlipManagerSingleton.MAX_BLIPS",
+    "member"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton.getangle",
+    "class/src/blip.mjs~BlipManagerSingleton.html#static-method-getAngle",
+    "src/blip.mjs~BlipManagerSingleton.getAngle",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton.getdirection",
+    "class/src/blip.mjs~BlipManagerSingleton.html#static-method-getDirection",
+    "src/blip.mjs~BlipManagerSingleton.getDirection",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton.getdistance",
+    "class/src/blip.mjs~BlipManagerSingleton.html#static-method-getDistance",
+    "src/blip.mjs~BlipManagerSingleton.getDistance",
+    "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton.storedblips",
+    "class/src/blip.mjs~BlipManagerSingleton.html#static-member-storedBlips",
+    "src/blip.mjs~BlipManagerSingleton.storedBlips",
     "member"
   ],
   [
@@ -328,6 +466,12 @@ window.esdocSearchIndex = [
     "file/src/instanceMarker.mjs.html",
     "src/instanceMarker.mjs",
     "file"
+  ],
+  [
+    "src/instancemarker.mjs~instancemarker#constructor",
+    "class/src/instanceMarker.mjs~InstanceMarker.html#instance-constructor-constructor",
+    "src/instanceMarker.mjs~InstanceMarker#constructor",
+    "method"
   ],
   [
     "src/instancemarker.mjs~instancemarker.removal_distance",
