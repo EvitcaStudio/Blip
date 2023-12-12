@@ -361,7 +361,8 @@ export class BlipComponent {
      * Removes this blip
      */
     remove() {
-        this.instance.hide();
+        // We check if there is an instance attached to this blip, because some blips can be created when the max blips already exist and they will be useless
+        if (this.instance) this.instance.hide();
         BlipManager.untrack(this.instance);
     }
 }
