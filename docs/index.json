@@ -567,7 +567,7 @@
     "__docId__": 48,
     "kind": "file",
     "name": "src/blip.mjs",
-    "content": "import { InstanceMarker } from './instanceMarker.mjs';\r\nimport { Logger } from './vendor/logger.min.mjs';\r\nimport { Collector } from './vendor/collector.min.mjs';\r\n\r\nclass BlipManagerSingleton {\r\n    /**\r\n     * The size of the game\r\n     * @type {number}\r\n     */\r\n\tstatic GAME_SIZE = (() => {\r\n\t\tif (VYLO) {\r\n\t\t\tconst gameSize = VYLO.World.getGameSize();\r\n\t\t\treturn gameSize;\r\n\t\t}\r\n\t\treturn { 'width': 960, 'height': 540 };\r\n\t})();\r\n    /**\r\n     * The size of the game halfed\r\n     * @type {number}\r\n     */\r\n\tstatic GAME_SIZE_HALF = (() => {\r\n\t\treturn { 'width': BlipManagerSingleton.GAME_SIZE.width / 2, 'height': BlipManagerSingleton.GAME_SIZE.height / 2 };\r\n\t})();\r\n    /**\r\n     * The center of the screen's coordinates (in pixels)\r\n     * @type {number}\r\n     */\r\n    static CENTER_SCREEN_POSITION = (() => {\r\n        return { x: BlipManagerSingleton.GAME_SIZE.width / 2 , y: BlipManagerSingleton.GAME_SIZE.height / 2};\r\n\t})();\r\n    /**\r\n     * The maximum number of blips that can exist on the screen at once\r\n     * @type {number}\r\n     */\r\n    static MAX_BLIPS = 200;\r\n    /**\r\n     * An array tracking all stored blips\r\n     * @type {Array}\r\n     */\r\n    static storedBlips = [];\r\n\t/**\r\n\t * Gets the angle between two points\r\n\t * \r\n\t * @param {Object} pStartPoint - The starting point\r\n\t * @param {Object} pEndPoint - The ending point\r\n     * @param {boolean} pCenter - Whether to get the angle from the center of the points\r\n\t * @returns {number} The angle between the starting point and the ending point\r\n\t */\r\n\tstatic getAngle(pStartPoint, pEndPoint, pCenter) {\r\n        let y;\r\n        let x;\r\n        if (pCenter) {\r\n            y = (pStartPoint.y + pStartPoint.icon.height / 2) - (pEndPoint.y + pEndPoint.icon.height / 2);\r\n            x = (pStartPoint.x + pStartPoint.icon.width / 2) - (pEndPoint.x + pEndPoint.icon.width / 2);\r\n        } else {\r\n            y = pStartPoint.y - pEndPoint.y;\r\n            x = pStartPoint.x - pEndPoint.x;\r\n        }\r\n\t\treturn -Math.atan2(y, x) - Math.PI;\r\n\t}\r\n    /**\r\n     * API to get distance between points\r\n     * @param {Object} pStartPoint - The starting point\r\n     * @param {Object} pEndPoint - The ending point\r\n     * @param {boolean} pCenter - Whether to get the distance from the center of the points\r\n     * @returns {number} The distance between the two points\r\n     */\r\n    static getDistance(pStartPoint, pEndPoint, pCenter) {\r\n        let y;\r\n        let x;\r\n        if (pCenter) {\r\n            y = (pStartPoint.y + pStartPoint.icon.height / 2) - (pEndPoint.y + pEndPoint.icon.height / 2);\r\n            x = (pStartPoint.x + pStartPoint.icon.width / 2) - (pEndPoint.x + pEndPoint.icon.width / 2);\r\n        } else {\r\n            y = (pStartPoint.y - pEndPoint.y);\r\n            x = (pStartPoint.x - pEndPoint.x);\r\n        }\r\n        return Math.sqrt(x * x + y * y);\r\n    }\r\n    /**\r\n     * Gets the direction of the angle passed\r\n     * @param {number} pAngle - The angle in radians to convert into a cardinal direction\r\n     * @returns The direction of the angle\r\n     */\r\n    static getDirection(pAngle) {\r\n\t\tconst degree = Math.abs(Math.floor(((pAngle * (180 / Math.PI)) / 45) + 0.5));\r\n\t\tconst compassDirections = ['east', 'southeast', 'south', 'southwest', 'west', 'northwest', 'north', 'northeast'];\r\n\t\treturn compassDirections[(degree % 8)];\r\n\t}\r\n    /**\r\n     * Whether the manager is actively managing the state of blips\r\n     */\r\n    paused = false;\r\n    /**\r\n     * An array tracking all active blips (hidden or not)\r\n     * @type {Array}\r\n     */\r\n    activeBlips = [];\r\n\r\n    constructor() {\r\n        this.interfaceHandle = (Math.random() * Math.PI / 2) + '-blip-interface';\r\n        // Create a logger\r\n        /** The logger module this module uses to log errors / logs\r\n         * @private\r\n         * @type {Object}\r\n         */\r\n        this.logger = new Logger();\r\n        this.logger.registerType('BlipComponent-Module', this.logger.FG_BLUE);\r\n        this.logger.prefix('BlipComponent-Module').log('BlipComponent module loaded');\r\n        // Create the interface\r\n        VYLO.Client.createInterface(this.interfaceHandle);\r\n        // Show the interface\r\n        VYLO.Client.showInterface(this.interfaceHandle);\r\n        /**\r\n         * Update loop for this blip manager to manage blips\r\n         */\r\n        const self = this;\r\n        const update = function() {\r\n            self.manageBlips();\r\n            requestAnimationFrame(update);\r\n        }\r\n        requestAnimationFrame(update);\r\n    }\r\n    /**\r\n     * Tracks a blip within the activeBlips array\r\n     * @param {Object} pBlip - The blip to track\r\n     */\r\n    track(pBlip) {\r\n        if (!this.activeBlips.includes(pBlip)) {\r\n            this.activeBlips.push(pBlip);\r\n        }\r\n    }\r\n    /**\r\n     * Untracks a blip from the activeBlips array\r\n     * @param {Object} pBlip - The blip to untrack\r\n     */\r\n    untrack(pBlip) {\r\n        if (this.activeBlips.includes(pBlip)) {\r\n            this.activeBlips.splice(this.activeBlips.indexOf(pBlip), 1);\r\n        }\r\n    }\r\n    /**\r\n     * Pauses the blip manager from managing blips\r\n     */\r\n    pause() {\r\n        this.paused = true;\r\n    }\r\n    /**\r\n     * Resumes the blip manager to manage blips\r\n     */\r\n    resume() {\r\n        this.paused = false;\r\n    }\r\n    /**\r\n     * Method for updating the \"state\" of each blip\r\n     */\r\n    manageBlips() {\r\n        // Do not manage blips when paused.\r\n        if (this.paused) {\r\n            return;\r\n        }\r\n        for (const blip of this.activeBlips) {\r\n            blip.mapInstance.getScreenPos(blip.screenPos);\r\n            // Get the position the blip should be placed at\r\n            const x = VYLO.Math.clamp((blip.screenPos.x + scrM.xMapPos + (blip.mapInstance.icon.width / 2) - blip.icon.width / VYLO.Client.mapView.scale.x) * VYLO.Client.mapView.scale.x, -blip.icon.width + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.width - blip.icon.width - blip.settings.buffer);\r\n            const y = VYLO.Math.clamp((blip.screenPos.y + scrM.yMapPos + (blip.mapInstance.icon.height / 2) - blip.icon.height / 2 / VYLO.Client.mapView.scale.y) * VYLO.Client.mapView.scale.y, (-blip.icon.height / 2) + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.height - (blip.icon.height / 2) - blip.settings.buffer);\r\n            // Check distance between map instance and client mob\r\n            const distance = Math.round(BlipManagerSingleton.getDistance(VYLO.Client.mob, blip.mapInstance, true));\r\n            // Check angle from client mob to map instance\r\n            const angle = BlipManagerSingleton.getAngle(VYLO.Client.mob, blip.mapInstance, true);\r\n            // Check the direction of the angle\r\n            const direction = BlipManagerSingleton.getDirection(angle);      \r\n            // Whether the blip will be shown or not\r\n            let showBlip = false;\r\n            // Setting the angle of the blip\r\n            blip.angle = angle;\r\n            // Setting the blip to the proper coordinates\r\n            blip.setPos(x, y);\r\n\r\n            if (distance < blip.settings.maxDistance) {\r\n                const furtherThanHalfHorizontalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.width - (blip.mapInstance.icon.width / 2)) / VYLO.Client.mapView.scale.x;\r\n                const furtherThanHalfVerticalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.height - (blip.mapInstance.icon.height / 2)) / VYLO.Client.mapView.scale.y;\r\n                // Check the direction so we know whether to show the blip or not. Some directions make it so the formula changes on whether to show it or not\r\n                switch (direction) {\r\n                    case 'north':\r\n                    case 'south':\r\n                        if (furtherThanHalfVerticalScreenSize) {\r\n                            showBlip = true;\r\n                        }\r\n                        break;\r\n\r\n                    case 'east':\r\n                    case 'west':\r\n                        if (furtherThanHalfHorizontalScreenSize) {\r\n                            showBlip = true;\r\n                        }\r\n                        break;\r\n                    \r\n                    /**\r\n                     * @todo Fix issue where lower distance sometimes makes blip hide\r\n                     */\r\n                    case 'northwest':\r\n                    case 'northeast':\r\n                    case 'southwest':\r\n                    case 'southeast':\r\n                        if (furtherThanHalfHorizontalScreenSize || furtherThanHalfVerticalScreenSize) {\r\n                            showBlip = true;\r\n                        }\r\n                        break;\r\n                }\r\n            }\r\n\r\n            if (showBlip) {\r\n                blip.show();\r\n            } else {\r\n                blip.hide();\r\n            }\r\n            /**\r\n             * @todo Handle the distance text being shown\r\n             */\r\n        }\r\n    }\r\n    /**\r\n     * Hides all blips\r\n     */\r\n    hideBlips() {\r\n        for (const blip of this.activeBlips) {\r\n            blip.hide();\r\n        }\r\n    }\r\n\r\n}\r\n\r\n// Create an instance of the blip manager \r\nconst BlipManager = new BlipManagerSingleton();\r\n\r\n/**\r\n* A Blip Component\r\n* @class BlipComponent\r\n* @license Blip is licensed under an MIT styled license.\r\n* @author https://github.com/doubleactii\r\n* Copyright (c) 2023 Evitca Studio\r\n*/\r\nexport class BlipComponent {\r\n    /**\r\n     * This is the static distance it will be from the side of the game window\r\n     * @type {number}\r\n     */\r\n    static BUFFER = 25;\r\n    /**\r\n     * This is the maximum distance at which the blip will be removed. (Distance from the center of the screen)\r\n     * @type {number}\r\n     */\r\n    static MAX_DIST = 1000;\r\n    /**\r\n     * This is the max plane/layer at which this blip will exist. This will overlay this blip icon over any other interface element\r\n     * @type {number}\r\n     */\r\n    static MAX_DISPLAY = 9999;\r\n    /**\r\n     * The blip instance that is created/recycled. This will be a Diob instance\r\n     * @type {Object}\r\n     */\r\n    instance = null;\r\n    /**\r\n     * @param {Object} pMapInstance - The instance this blip will represent\r\n     * @param {Object} pIconSettings - An object with settings holding the icon information for the blip\r\n     * @param {Object} pBlipSettings - AN object with settings on how the blip will behave\r\n     */\r\n    constructor(pMapInstance, pIconSettings = { 'atlasName': '', 'iconName': '' }, pBlipSettings = { 'buffer': BlipComponent.BUFFER, 'showsDistance': false, 'maxDistance': BlipComponent.MAX_DIST, 'alwaysOnTop': false }, pMarkerSettings) {\r\n       // Do not allow more than the max amount of blips to be created.\r\n        if (BlipManager.activeBlips.length >= BlipManagerSingleton.MAX_BLIPS) {\r\n            BlipManager.logger.prefix('BlipComponent-Module').log('BlipComponent creation interrupted! MAX_BLIPS limit reached');\r\n            return;\r\n        }\r\n\r\n        // Creating/Recyling the blip\r\n        const blip = Collector.isInCollection('Interface', 1, BlipManagerSingleton.storedBlips);\r\n        blip.touchOpacity = 0;\r\n        blip.mouseOpacity = 0;\r\n        blip.preventAutoScale = false;\r\n        blip.anchor.x = 1;\r\n        blip.anchor.y = 0.5;\r\n        // Assigning icon data to the blip\r\n        blip.atlasName = pIconSettings.atlasName;\r\n        blip.iconName = pIconSettings.iconName;\r\n        // Allow map instance to be referenced via the blip\r\n        blip.mapInstance = pMapInstance;\r\n        blip.screenPos = { x: 0, y: 0 };\r\n        blip.settings = {\r\n            // The padding between the blip and the screen\r\n            'buffer': pBlipSettings.buffer,\r\n            // Whether this blip will show its distance\r\n            'showsDistance': pBlipSettings.showsDistance,\r\n            // The max distance at which the map instance this blip represents can be from the center of the screen\r\n            'maxDistance': pBlipSettings.maxDistance\r\n        };\r\n        // Render above all others\r\n        if (pBlipSettings.alwaysOnTop) {\r\n            blip.plane = BlipComponent.MAX_DISPLAY;\r\n            blip.layer = BlipComponent.MAX_DISPLAY;\r\n        }\r\n        \r\n        // Shows a marker when the blip is hidden due to the map instance being ON SCREEN.\r\n        if (pMarkerSettings) {\r\n            /**\r\n             * @todo Create Instance Marker with settings.\r\n             * Remember the atlasName and iconName is inside of the marker settings\r\n             */\r\n        }\r\n        // Adding blip to interface to be shown\r\n        VYLO.Client.addInterfaceElement(blip, BlipManager.interfaceHandle, pMapInstance.id + '- blip');\r\n        blip.hide();\r\n        // Track the blip\r\n        BlipManager.track(blip);\r\n        // Add a reference to the blip\r\n        this.instance = blip;\r\n    }\r\n    /**\r\n     * Removes this blip\r\n     */\r\n    remove() {\r\n        this.instance.hide();\r\n        BlipManager.untrack(this.instance);\r\n    }\r\n}\r\n",
+    "content": "import { InstanceMarker } from './instanceMarker.mjs';\r\nimport { Logger } from './vendor/logger.min.mjs';\r\nimport { Collector } from './vendor/collector.min.mjs';\r\n\r\nclass BlipManagerSingleton {\r\n    /**\r\n     * The size of the game\r\n     * @type {number}\r\n     */\r\n\tstatic GAME_SIZE = (() => {\r\n\t\tif (VYLO) {\r\n\t\t\tconst gameSize = VYLO.World.getGameSize();\r\n\t\t\treturn gameSize;\r\n\t\t}\r\n\t\treturn { 'width': 960, 'height': 540 };\r\n\t})();\r\n    /**\r\n     * The size of the game halfed\r\n     * @type {number}\r\n     */\r\n\tstatic GAME_SIZE_HALF = (() => {\r\n\t\treturn { 'width': BlipManagerSingleton.GAME_SIZE.width / 2, 'height': BlipManagerSingleton.GAME_SIZE.height / 2 };\r\n\t})();\r\n    /**\r\n     * The center of the screen's coordinates (in pixels)\r\n     * @type {number}\r\n     */\r\n    static CENTER_SCREEN_POSITION = (() => {\r\n        return { x: BlipManagerSingleton.GAME_SIZE.width / 2 , y: BlipManagerSingleton.GAME_SIZE.height / 2};\r\n\t})();\r\n    /**\r\n     * The maximum number of blips that can exist on the screen at once\r\n     * @type {number}\r\n     */\r\n    static MAX_BLIPS = 200;\r\n    /**\r\n     * An array tracking all stored blips\r\n     * @type {Array}\r\n     */\r\n    static storedBlips = [];\r\n\t/**\r\n\t * Gets the angle between two points\r\n\t * \r\n\t * @param {Object} pStartPoint - The starting point\r\n\t * @param {Object} pEndPoint - The ending point\r\n     * @param {boolean} pCenter - Whether to get the angle from the center of the points\r\n\t * @returns {number} The angle between the starting point and the ending point\r\n\t */\r\n\tstatic getAngle(pStartPoint, pEndPoint, pCenter) {\r\n        let y;\r\n        let x;\r\n        if (pCenter) {\r\n            y = (pStartPoint.y + pStartPoint.icon.height / 2) - (pEndPoint.y + pEndPoint.icon.height / 2);\r\n            x = (pStartPoint.x + pStartPoint.icon.width / 2) - (pEndPoint.x + pEndPoint.icon.width / 2);\r\n        } else {\r\n            y = pStartPoint.y - pEndPoint.y;\r\n            x = pStartPoint.x - pEndPoint.x;\r\n        }\r\n\t\treturn -Math.atan2(y, x) - Math.PI;\r\n\t}\r\n    /**\r\n     * API to get distance between points\r\n     * @param {Object} pStartPoint - The starting point\r\n     * @param {Object} pEndPoint - The ending point\r\n     * @param {boolean} pCenter - Whether to get the distance from the center of the points\r\n     * @returns {number} The distance between the two points\r\n     */\r\n    static getDistance(pStartPoint, pEndPoint, pCenter) {\r\n        let y;\r\n        let x;\r\n        if (pCenter) {\r\n            y = (pStartPoint.y + pStartPoint.icon.height / 2) - (pEndPoint.y + pEndPoint.icon.height / 2);\r\n            x = (pStartPoint.x + pStartPoint.icon.width / 2) - (pEndPoint.x + pEndPoint.icon.width / 2);\r\n        } else {\r\n            y = (pStartPoint.y - pEndPoint.y);\r\n            x = (pStartPoint.x - pEndPoint.x);\r\n        }\r\n        return Math.sqrt(x * x + y * y);\r\n    }\r\n    /**\r\n     * Gets the direction of the angle passed\r\n     * @param {number} pAngle - The angle in radians to convert into a cardinal direction\r\n     * @returns The direction of the angle\r\n     */\r\n    static getDirection(pAngle) {\r\n\t\tconst degree = Math.abs(Math.floor(((pAngle * (180 / Math.PI)) / 45) + 0.5));\r\n\t\tconst compassDirections = ['east', 'southeast', 'south', 'southwest', 'west', 'northwest', 'north', 'northeast'];\r\n\t\treturn compassDirections[(degree % 8)];\r\n\t}\r\n    /**\r\n     * Whether the manager is actively managing the state of blips\r\n     * @type {boolean}\r\n     */\r\n    paused = false;\r\n    /**\r\n     * An array tracking all active blips (hidden or not)\r\n     * @type {Array}\r\n     */\r\n    activeBlips = [];\r\n\r\n    constructor() {\r\n        this.interfaceHandle = (Math.random() * Math.PI / 2) + '-blip-interface';\r\n        // Create a logger\r\n        /** The logger module this module uses to log errors / logs\r\n         * @private\r\n         * @type {Object}\r\n         */\r\n        this.logger = new Logger();\r\n        this.logger.registerType('BlipComponent-Module', this.logger.FG_BLUE);\r\n        this.logger.prefix('BlipComponent-Module').log('BlipComponent module loaded');\r\n        // Create the interface\r\n        VYLO.Client.createInterface(this.interfaceHandle);\r\n        // Show the interface\r\n        VYLO.Client.showInterface(this.interfaceHandle);\r\n        /**\r\n         * Update loop for this blip manager to manage blips\r\n         */\r\n        const self = this;\r\n        const update = function() {\r\n            self.manageBlips();\r\n            requestAnimationFrame(update);\r\n        }\r\n        requestAnimationFrame(update);\r\n    }\r\n    /**\r\n     * Tracks a blip within the activeBlips array\r\n     * @param {Object} pBlip - The blip to track\r\n     */\r\n    track(pBlip) {\r\n        if (!this.activeBlips.includes(pBlip)) {\r\n            this.activeBlips.push(pBlip);\r\n        }\r\n    }\r\n    /**\r\n     * Untracks a blip from the activeBlips array\r\n     * @param {Object} pBlip - The blip to untrack\r\n     */\r\n    untrack(pBlip) {\r\n        if (this.activeBlips.includes(pBlip)) {\r\n            this.activeBlips.splice(this.activeBlips.indexOf(pBlip), 1);\r\n        }\r\n    }\r\n    /**\r\n     * Pauses the blip manager from managing blips\r\n     */\r\n    pause() {\r\n        this.paused = true;\r\n    }\r\n    /**\r\n     * Resumes the blip manager to manage blips\r\n     */\r\n    resume() {\r\n        this.paused = false;\r\n    }\r\n    /**\r\n     * Method for updating the \"state\" of each blip\r\n     */\r\n    manageBlips() {\r\n        // Do not manage blips when paused.\r\n        if (this.paused) {\r\n            return;\r\n        }\r\n        for (const blip of this.activeBlips) {\r\n            blip.mapInstance.getScreenPos(blip.screenPos);\r\n            // Get the position the blip should be placed at\r\n            const x = VYLO.Math.clamp((blip.screenPos.x + scrM.xMapPos + (blip.mapInstance.icon.width / 2) - blip.icon.width / VYLO.Client.mapView.scale.x) * VYLO.Client.mapView.scale.x, -blip.icon.width + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.width - blip.icon.width - blip.settings.buffer);\r\n            const y = VYLO.Math.clamp((blip.screenPos.y + scrM.yMapPos + (blip.mapInstance.icon.height / 2) - blip.icon.height / 2 / VYLO.Client.mapView.scale.y) * VYLO.Client.mapView.scale.y, (-blip.icon.height / 2) + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.height - (blip.icon.height / 2) - blip.settings.buffer);\r\n            // Check distance between map instance and client mob\r\n            const distance = Math.round(BlipManagerSingleton.getDistance(VYLO.Client.mob, blip.mapInstance, true));\r\n            // Check angle from client mob to map instance\r\n            const angle = BlipManagerSingleton.getAngle(VYLO.Client.mob, blip.mapInstance, true);\r\n            // Check the direction of the angle\r\n            const direction = BlipManagerSingleton.getDirection(angle);      \r\n            // Whether the blip will be shown or not\r\n            let showBlip = false;\r\n            // Setting the angle of the blip\r\n            blip.angle = angle;\r\n            // Setting the blip to the proper coordinates\r\n            blip.setPos(x, y);\r\n\r\n            if (distance < blip.settings.maxDistance) {\r\n                const furtherThanHalfHorizontalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.width - (blip.mapInstance.icon.width / 2)) / VYLO.Client.mapView.scale.x;\r\n                const furtherThanHalfVerticalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.height - (blip.mapInstance.icon.height / 2)) / VYLO.Client.mapView.scale.y;\r\n                // Check the direction so we know whether to show the blip or not. Some directions make it so the formula changes on whether to show it or not\r\n                switch (direction) {\r\n                    case 'north':\r\n                    case 'south':\r\n                        if (furtherThanHalfVerticalScreenSize) {\r\n                            showBlip = true;\r\n                        }\r\n                        break;\r\n\r\n                    case 'east':\r\n                    case 'west':\r\n                        if (furtherThanHalfHorizontalScreenSize) {\r\n                            showBlip = true;\r\n                        }\r\n                        break;\r\n                    \r\n                    /**\r\n                     * @todo Fix issue where lower distance sometimes makes blip hide\r\n                     */\r\n                    case 'northwest':\r\n                    case 'northeast':\r\n                    case 'southwest':\r\n                    case 'southeast':\r\n                        if (furtherThanHalfHorizontalScreenSize || furtherThanHalfVerticalScreenSize) {\r\n                            showBlip = true;\r\n                        }\r\n                        break;\r\n                }\r\n            }\r\n\r\n            if (showBlip) {\r\n                blip.show();\r\n            } else {\r\n                blip.hide();\r\n            }\r\n            /**\r\n             * @todo Handle the distance text being shown\r\n             */\r\n        }\r\n    }\r\n    /**\r\n     * Hides all blips\r\n     */\r\n    hideBlips() {\r\n        for (const blip of this.activeBlips) {\r\n            blip.hide();\r\n        }\r\n    }\r\n\r\n}\r\n\r\n// Create an instance of the blip manager \r\nconst BlipManager = new BlipManagerSingleton();\r\n\r\n/**\r\n* A Blip Component\r\n* @class BlipComponent\r\n* @license Blip is licensed under an MIT styled license.\r\n* @author https://github.com/doubleactii\r\n* Copyright (c) 2023 Evitca Studio\r\n*/\r\nexport class BlipComponent {\r\n    /**\r\n     * This is the static distance it will be from the side of the game window\r\n     * @type {number}\r\n     */\r\n    static BUFFER = 25;\r\n    /**\r\n     * This is the maximum distance at which the blip will be removed. (Distance from the center of the screen)\r\n     * @type {number}\r\n     */\r\n    static MAX_DIST = 1000;\r\n    /**\r\n     * This is the max plane/layer at which this blip will exist. This will overlay this blip icon over any other interface element\r\n     * @type {number}\r\n     */\r\n    static MAX_DISPLAY = 9999;\r\n    /**\r\n     * The blip instance that is created/recycled. This will be a Diob instance\r\n     * @type {Object}\r\n     */\r\n    instance = null;\r\n    /**\r\n     * @param {Object} pMapInstance - The instance this blip will represent\r\n     * @param {Object} pIconSettings - An object with settings holding the icon information for the blip\r\n     * @param {Object} pBlipSettings - AN object with settings on how the blip will behave\r\n     */\r\n    constructor(pMapInstance, pIconSettings = { 'atlasName': '', 'iconName': '' }, pBlipSettings = { 'buffer': BlipComponent.BUFFER, 'showsDistance': false, 'maxDistance': BlipComponent.MAX_DIST, 'alwaysOnTop': false }, pMarkerSettings) {\r\n       // Do not allow more than the max amount of blips to be created.\r\n        if (BlipManager.activeBlips.length >= BlipManagerSingleton.MAX_BLIPS) {\r\n            BlipManager.logger.prefix('BlipComponent-Module').log('BlipComponent creation interrupted! MAX_BLIPS limit reached');\r\n            return;\r\n        }\r\n\r\n        // Creating/Recyling the blip\r\n        const blip = Collector.isInCollection('Interface', 1, BlipManagerSingleton.storedBlips);\r\n        blip.touchOpacity = 0;\r\n        blip.mouseOpacity = 0;\r\n        blip.preventAutoScale = false;\r\n        blip.anchor.x = 1;\r\n        blip.anchor.y = 0.5;\r\n        // Assigning icon data to the blip\r\n        blip.atlasName = pIconSettings.atlasName;\r\n        blip.iconName = pIconSettings.iconName;\r\n        // Allow map instance to be referenced via the blip\r\n        blip.mapInstance = pMapInstance;\r\n        blip.screenPos = { x: 0, y: 0 };\r\n        blip.settings = {\r\n            // The padding between the blip and the screen\r\n            'buffer': pBlipSettings.buffer,\r\n            // Whether this blip will show its distance\r\n            'showsDistance': pBlipSettings.showsDistance,\r\n            // The max distance at which the map instance this blip represents can be from the center of the screen\r\n            'maxDistance': pBlipSettings.maxDistance\r\n        };\r\n        // Render above all others\r\n        if (pBlipSettings.alwaysOnTop) {\r\n            blip.plane = BlipComponent.MAX_DISPLAY;\r\n            blip.layer = BlipComponent.MAX_DISPLAY;\r\n        }\r\n        \r\n        // Shows a marker when the blip is hidden due to the map instance being ON SCREEN.\r\n        if (pMarkerSettings) {\r\n            /**\r\n             * @todo Create Instance Marker with settings.\r\n             * Remember the atlasName and iconName is inside of the marker settings\r\n             */\r\n        }\r\n        // Adding blip to interface to be shown\r\n        VYLO.Client.addInterfaceElement(blip, BlipManager.interfaceHandle, pMapInstance.id + '- blip');\r\n        blip.hide();\r\n        // Track the blip\r\n        BlipManager.track(blip);\r\n        // Add a reference to the blip\r\n        this.instance = blip;\r\n    }\r\n    /**\r\n     * Removes this blip\r\n     */\r\n    remove() {\r\n        this.instance.hide();\r\n        BlipManager.untrack(this.instance);\r\n    }\r\n}\r\n",
     "static": true,
     "longname": "C:/Users/jared/Documents/Github/Blip/src/blip.mjs",
     "access": "public",
@@ -851,11 +851,14 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#paused",
     "access": "public",
     "description": "Whether the manager is actively managing the state of blips",
-    "lineNumber": 93,
+    "lineNumber": 94,
     "type": {
+      "nullable": null,
       "types": [
-        "*"
-      ]
+        "boolean"
+      ],
+      "spread": false,
+      "description": null
     }
   },
   {
@@ -867,7 +870,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#activeBlips",
     "access": "public",
     "description": "An array tracking all active blips (hidden or not)",
-    "lineNumber": 98,
+    "lineNumber": 99,
     "type": {
       "nullable": null,
       "types": [
@@ -888,7 +891,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#constructor",
     "access": "public",
     "description": null,
-    "lineNumber": 100,
+    "lineNumber": 101,
     "undocument": true
   },
   {
@@ -900,7 +903,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#interfaceHandle",
     "access": "public",
     "description": null,
-    "lineNumber": 101,
+    "lineNumber": 102,
     "undocument": true,
     "type": {
       "types": [
@@ -917,7 +920,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#logger",
     "access": "private",
     "description": "The logger module this module uses to log errors / logs",
-    "lineNumber": 107,
+    "lineNumber": 108,
     "type": {
       "nullable": null,
       "types": [
@@ -938,7 +941,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#track",
     "access": "public",
     "description": "Tracks a blip within the activeBlips array",
-    "lineNumber": 128,
+    "lineNumber": 129,
     "params": [
       {
         "nullable": null,
@@ -964,7 +967,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#untrack",
     "access": "public",
     "description": "Untracks a blip from the activeBlips array",
-    "lineNumber": 137,
+    "lineNumber": 138,
     "params": [
       {
         "nullable": null,
@@ -990,7 +993,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#pause",
     "access": "public",
     "description": "Pauses the blip manager from managing blips",
-    "lineNumber": 145,
+    "lineNumber": 146,
     "params": [],
     "return": null
   },
@@ -1005,7 +1008,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#resume",
     "access": "public",
     "description": "Resumes the blip manager to manage blips",
-    "lineNumber": 151,
+    "lineNumber": 152,
     "params": [],
     "return": null
   },
@@ -1020,7 +1023,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#manageBlips",
     "access": "public",
     "description": "Method for updating the \"state\" of each blip",
-    "lineNumber": 157,
+    "lineNumber": 158,
     "params": [],
     "return": null
   },
@@ -1035,7 +1038,7 @@
     "longname": "src/blip.mjs~BlipManagerSingleton#hideBlips",
     "access": "public",
     "description": "Hides all blips",
-    "lineNumber": 226,
+    "lineNumber": 227,
     "params": [],
     "return": null
   },
@@ -1051,7 +1054,7 @@
     "importPath": "./src/blip.mjs",
     "importStyle": null,
     "description": null,
-    "lineNumber": 235,
+    "lineNumber": 236,
     "undocument": true,
     "type": {
       "types": [
@@ -1071,7 +1074,7 @@
     "importPath": "./src/blip.mjs",
     "importStyle": "{BlipComponent}",
     "description": "A Blip Component",
-    "lineNumber": 244,
+    "lineNumber": 245,
     "unknown": [
       {
         "tagName": "@class",
@@ -1097,7 +1100,7 @@
     "longname": "src/blip.mjs~BlipComponent.BUFFER",
     "access": "public",
     "description": "This is the static distance it will be from the side of the game window",
-    "lineNumber": 249,
+    "lineNumber": 250,
     "type": {
       "nullable": null,
       "types": [
@@ -1116,7 +1119,7 @@
     "longname": "src/blip.mjs~BlipComponent.MAX_DIST",
     "access": "public",
     "description": "This is the maximum distance at which the blip will be removed. (Distance from the center of the screen)",
-    "lineNumber": 254,
+    "lineNumber": 255,
     "type": {
       "nullable": null,
       "types": [
@@ -1135,7 +1138,7 @@
     "longname": "src/blip.mjs~BlipComponent.MAX_DISPLAY",
     "access": "public",
     "description": "This is the max plane/layer at which this blip will exist. This will overlay this blip icon over any other interface element",
-    "lineNumber": 259,
+    "lineNumber": 260,
     "type": {
       "nullable": null,
       "types": [
@@ -1154,7 +1157,7 @@
     "longname": "src/blip.mjs~BlipComponent#instance",
     "access": "public",
     "description": "The blip instance that is created/recycled. This will be a Diob instance",
-    "lineNumber": 264,
+    "lineNumber": 265,
     "type": {
       "nullable": null,
       "types": [
@@ -1175,7 +1178,7 @@
     "longname": "src/blip.mjs~BlipComponent#constructor",
     "access": "public",
     "description": "",
-    "lineNumber": 270,
+    "lineNumber": 271,
     "params": [
       {
         "nullable": null,
@@ -1220,7 +1223,7 @@
     "longname": "src/blip.mjs~BlipComponent#remove",
     "access": "public",
     "description": "Removes this blip",
-    "lineNumber": 322,
+    "lineNumber": 323,
     "params": [],
     "return": null
   },
