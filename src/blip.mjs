@@ -89,6 +89,7 @@ class BlipManagerSingleton {
 	}
     /**
      * Whether the manager is actively managing the state of blips
+     * @type {boolean}
      */
     paused = false;
     /**
@@ -100,6 +101,10 @@ class BlipManagerSingleton {
     constructor() {
         this.interfaceHandle = (Math.random() * Math.PI / 2) + '-blip-interface';
         // Create a logger
+        /** The logger module this module uses to log errors / logs
+         * @private
+         * @type {Object}
+         */
         this.logger = new Logger();
         this.logger.registerType('BlipComponent-Module', this.logger.FG_BLUE);
         this.logger.prefix('BlipComponent-Module').log('BlipComponent module loaded');
