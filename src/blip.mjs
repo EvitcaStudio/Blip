@@ -29,6 +29,11 @@ class BlipManagerSingleton {
         return { x: BlipManagerSingleton.GAME_SIZE.width / 2 , y: BlipManagerSingleton.GAME_SIZE.height / 2};
 	})();
     /**
+     * The default tile size. This is used a backup value when an icon's width/height is not accessible.
+     * @type {number}
+     */
+    static TILE_SIZE = 32;
+    /**
      * The maximum number of blips that can exist on the screen at once
      * @type {number}
      */
@@ -50,8 +55,10 @@ class BlipManagerSingleton {
         let y;
         let x;
         if (pCenter) {
-            y = (pStartPoint.y + pStartPoint.icon.height / 2) - (pEndPoint.y + pEndPoint.icon.height / 2);
-            x = (pStartPoint.x + pStartPoint.icon.width / 2) - (pEndPoint.x + pEndPoint.icon.width / 2);
+            const iconWidth = pStartPoint.icon ? pStartPoint.icon.width : 32;
+            const iconHeight = pStartPoint.icon ? pStartPoint.icon.height : 32;
+            y = (pStartPoint.y + iconHeight / 2) - (pEndPoint.y + iconHeight / 2);
+            x = (pStartPoint.x + iconWidth / 2) - (pEndPoint.x + iconWidth / 2);
         } else {
             y = pStartPoint.y - pEndPoint.y;
             x = pStartPoint.x - pEndPoint.x;
@@ -69,8 +76,10 @@ class BlipManagerSingleton {
         let y;
         let x;
         if (pCenter) {
-            y = (pStartPoint.y + pStartPoint.icon.height / 2) - (pEndPoint.y + pEndPoint.icon.height / 2);
-            x = (pStartPoint.x + pStartPoint.icon.width / 2) - (pEndPoint.x + pEndPoint.icon.width / 2);
+            const iconWidth = pStartPoint.icon ? pStartPoint.icon.width : 32;
+            const iconHeight = pStartPoint.icon ? pStartPoint.icon.height : 32;
+            y = (pStartPoint.y + iconHeight / 2) - (pEndPoint.y + iconHeight / 2);
+            x = (pStartPoint.x + iconWidth / 2) - (pEndPoint.x + iconWidth / 2);
         } else {
             y = (pStartPoint.y - pEndPoint.y);
             x = (pStartPoint.x - pEndPoint.x);
@@ -106,8 +115,8 @@ class BlipManagerSingleton {
          * @type {Object}
          */
         this.logger = new Logger();
-        this.logger.registerType('BlipComponent-Module', this.logger.FG_BLUE);
-        this.logger.prefix('BlipComponent-Module').log('BlipComponent module loaded');
+        this.logger.registerType('BlipComponent-Module', this.logger.FG_MAGENTA);
+        this.logger.prefix('BlipComponent-Module').log(`✅@v${__VERSION__}`);
         // Create the interface
         VYLO.Client.createInterface(this.interfaceHandle);
         // Show the interface
@@ -161,10 +170,15 @@ class BlipManagerSingleton {
             return;
         }
         for (const blip of this.activeBlips) {
+            const blipIconWidth = blip.icon ? blip.icon.width : 32;
+            const blipIconHeight = blip.icon ? blip.icon.height : 32;
+
+            const mapInstanceIconWidth = blip.mapInstance.icon ? blip.mapInstance.icon.width : 32;
+            const mapInstanceHeight = blip.mapInstance.icon ? blip.mapInstance.icon.height : 32;
             blip.mapInstance.getScreenPos(blip.screenPos);
             // Get the position the blip should be placed at
-            const x = VYLO.Math.clamp((blip.screenPos.x + scrM.xMapPos + (blip.mapInstance.icon.width / 2) - blip.icon.width / VYLO.Client.mapView.scale.x) * VYLO.Client.mapView.scale.x, -blip.icon.width + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.width - blip.icon.width - blip.settings.buffer);
-            const y = VYLO.Math.clamp((blip.screenPos.y + scrM.yMapPos + (blip.mapInstance.icon.height / 2) - blip.icon.height / 2 / VYLO.Client.mapView.scale.y) * VYLO.Client.mapView.scale.y, (-blip.icon.height / 2) + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.height - (blip.icon.height / 2) - blip.settings.buffer);
+            const x = VYLO.Math.clamp((blip.screenPos.x + scrM.xMapPos + (mapInstanceIconWidth / 2) - blipIconWidth / VYLO.Client.mapView.scale.x) * VYLO.Client.mapView.scale.x, -blipIconWidth + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.width - blipIconWidth - blip.settings.buffer);
+            const y = VYLO.Math.clamp((blip.screenPos.y + scrM.yMapPos + (mapInstanceHeight / 2) - blipIconHeight / 2 / VYLO.Client.mapView.scale.y) * VYLO.Client.mapView.scale.y, (-blipIconHeight / 2) + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.height - (blipIconHeight / 2) - blip.settings.buffer);
             // Check distance between map instance and client mob
             const distance = Math.round(BlipManagerSingleton.getDistance(VYLO.Client.mob, blip.mapInstance, true));
             // Check angle from client mob to map instance
@@ -179,8 +193,8 @@ class BlipManagerSingleton {
             blip.setPos(x, y);
 
             if (distance < blip.settings.maxDistance) {
-                const furtherThanHalfHorizontalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.width - (blip.mapInstance.icon.width / 2)) / VYLO.Client.mapView.scale.x;
-                const furtherThanHalfVerticalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.height - (blip.mapInstance.icon.height / 2)) / VYLO.Client.mapView.scale.y;
+                const furtherThanHalfHorizontalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.width - (mapInstanceIconWidth / 2)) / VYLO.Client.mapView.scale.x;
+                const furtherThanHalfVerticalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.height - (mapInstanceHeight / 2)) / VYLO.Client.mapView.scale.y;
                 // Check the direction so we know whether to show the blip or not. Some directions make it so the formula changes on whether to show it or not
                 switch (direction) {
                     case 'north':
@@ -271,7 +285,7 @@ export class BlipComponent {
     constructor(pMapInstance, pIconSettings = { 'atlasName': '', 'iconName': '' }, pBlipSettings = { 'buffer': BlipComponent.BUFFER, 'showsDistance': false, 'maxDistance': BlipComponent.MAX_DIST, 'alwaysOnTop': false }, pMarkerSettings) {
        // Do not allow more than the max amount of blips to be created.
         if (BlipManager.activeBlips.length >= BlipManagerSingleton.MAX_BLIPS) {
-            BlipManager.logger.prefix('BlipComponent-Module').log('BlipComponent creation interrupted! MAX_BLIPS limit reached');
+            BlipManager.logger.prefix('BlipComponent-Module').log('Max blip limit reached');
             return;
         }
 

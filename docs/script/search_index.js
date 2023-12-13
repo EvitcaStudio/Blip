@@ -438,6 +438,12 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
+    "src/blip.mjs~blipmanagersingleton.tile_size",
+    "class/src/blip.mjs~BlipManagerSingleton.html#static-member-TILE_SIZE",
+    "src/blip.mjs~BlipManagerSingleton.TILE_SIZE",
+    "member"
+  ],
+  [
     "src/blip.mjs~blipmanagersingleton.getangle",
     "class/src/blip.mjs~BlipManagerSingleton.html#static-method-getAngle",
     "src/blip.mjs~BlipManagerSingleton.getAngle",
