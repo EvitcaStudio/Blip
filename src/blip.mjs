@@ -115,7 +115,7 @@ class BlipManagerSingleton {
          * @type {Object}
          */
         this.logger = new Logger();
-        this.logger.registerType('BlipComponent-Module', this.logger.FG_MAGENTA);
+        this.logger.registerType('BlipComponent-Module', '#ff6600');
         this.logger.prefix('BlipComponent-Module').log(`✅@v${__VERSION__}`);
         // Create the interface
         VYLO.Client.createInterface(this.interfaceHandle);

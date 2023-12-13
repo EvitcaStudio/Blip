@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const packageJson = require('./package.json');
+const packageJSON = require('./package.json');
 
 module.exports = {
     entry: {
@@ -19,7 +19,7 @@ module.exports = {
     },
     plugins: [
       new webpack.DefinePlugin({
-        '__VERSION__': JSON.stringify(packageJson.version),
+        '__VERSION__': JSON.stringify(packageJSON.version),
       }),
     ],
     module: {
