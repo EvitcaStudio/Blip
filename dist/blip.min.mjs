@@ -19,7 +19,8 @@ class a{static version="1.0.0";static DiobConstructor=(s=VYLO.newDiob(),t=s.__pr
 /**
 * A Blip Component
 * @class BlipComponent
-* @license Blip is licensed under an MIT styled license.
+* @version 1.0.0
+* @license Blip does not have a license at this time. For licensing contact the author
 * @author https://github.com/doubleactii
 * Copyright (c) 2023 Evitca Studio
 */class c{static BUFFER=25;static MAX_DIST=1e3;static MAX_DISPLAY=9999;instance=null;constructor(e,t={atlasName:"",iconName:""},s={buffer:c.BUFFER,showsDistance:!1,maxDistance:c.MAX_DIST,alwaysOnTop:!1},i){var o;a.activeBlips.length>=p.MAX_BLIPS?a.logger.prefix("BlipComponent-Module").log("Max blip limit reached"):((o=n.Collector.isInCollection("Interface",1,p.storedBlips)).touchOpacity=0,o.mouseOpacity=0,o.preventAutoScale=!1,o.anchor.x=1,o.anchor.y=.5,o.atlasName=t.atlasName,o.iconName=t.iconName,o.mapInstance=e,o.screenPos={x:0,y:0},o.settings={buffer:s.buffer,showsDistance:s.showsDistance,maxDistance:s.maxDistance},s.alwaysOnTop&&(o.plane=c.MAX_DISPLAY,o.layer=c.MAX_DISPLAY),VYLO.Client.addInterfaceElement(o,a.interfaceHandle,e.id+"- blip"),o.hide(),a.track(o),this.instance=o)}remove(){this.instance&&this.instance.hide(),a.untrack(this.instance)}}})(),__webpack_exports__.BlipComponent);export{__webpack_exports__BlipComponent as BlipComponent};

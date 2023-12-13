@@ -9,7 +9,10 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-dist": "npx webpack && uglifyjs dist/blip.min.mjs -m -c --comments -o dist/blip.min.mjs && esdoc -c esdoc.json"
+    "build-dist": "npx webpack && uglifyjs dist/blip.min.mjs -m -c --comments -o dist/blip.min.mjs && node version-handler.js && esdoc -c esdoc.json",
+    "update-version-major": "npm version major && npm run build-dist",
+    "update-version-minor": "npm version minor && npm run build-dist",
+    "update-version-patch": "npm version patch && npm run build-dist"
   },
   "devDependencies": {
     "webpack-cli": "^5.1.4"
