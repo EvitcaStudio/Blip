@@ -1,6 +1,4 @@
 const path = require('path');
-const webpack = require('webpack');
-const packageJSON = require('./package.json');
 
 module.exports = {
     entry: {
@@ -17,11 +15,6 @@ module.exports = {
         type: 'module'
       },
     },
-    plugins: [
-      new webpack.DefinePlugin({
-        '__VERSION__': JSON.stringify(packageJSON.version),
-      }),
-    ],
     module: {
       rules: [
         {

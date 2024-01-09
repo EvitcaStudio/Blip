@@ -96,6 +96,10 @@ class BlipManagerSingleton {
 		const compassDirections = ['east', 'southeast', 'south', 'southwest', 'west', 'northwest', 'north', 'northeast'];
 		return compassDirections[(degree % 8)];
 	}
+	/**
+	 * The version of the module.
+	 */
+	version = "VERSION_REPLACE_ME";
     /**
      * Whether the manager is actively managing the state of blips
      * @type {boolean}
@@ -116,7 +120,6 @@ class BlipManagerSingleton {
          */
         this.logger = new Logger();
         this.logger.registerType('BlipComponent-Module', '#ff6600');
-        this.logger.prefix('BlipComponent-Module').log(`✅@v${__VERSION__}`);
         // Create the interface
         VYLO.Client.createInterface(this.interfaceHandle);
         // Show the interface

@@ -1,20 +1,28 @@
 {
+  "name": "blip",
   "version": "1.0.0",
-  "dependencies": {
+  "description": "A plugin that will allow a blip representation of an instance that is offscreen to be shown and much more with customizable settings!",
+  "main": "dist/blip.min.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx webpack && npm run build:minify && node add-version-script.js && node add-banner-script.js",
+    "build:minify": "uglifyjs dist/blip.min.mjs -m -c --comments -o dist/blip.min.mjs",
+    "build:prod": "npx webpack --mode production && npm run build:minify && node add-version-script.js && node add-banner-script.js && npm run build:docs",
+    "build:docs": "esdoc -c esdoc.json"
+  },
+  "keywords": [],
+  "author": "https://github.com/doubleactii",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EvitcaStudio/Blip.git"
+  },
+  "devDependencies": {
     "esdoc": "^1.1.0",
     "esdoc-ecmascript-proposal-plugin": "^1.0.0",
     "esdoc-standard-plugin": "^1.0.0",
     "uglify-js": "^3.17.4",
-    "webpack": "^5.89.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build-dist": "npx webpack && uglifyjs dist/blip.min.mjs -m -c --comments -o dist/blip.min.mjs && node version-handler.js && esdoc -c esdoc.json",
-    "update-version-major": "npm version major && npm run build-dist",
-    "update-version-minor": "npm version minor && npm run build-dist",
-    "update-version-patch": "npm version patch && npm run build-dist"
-  },
-  "devDependencies": {
+    "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
   }
 }

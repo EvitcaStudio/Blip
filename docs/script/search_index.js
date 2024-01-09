@@ -1,26 +1,26 @@
 window.esdocSearchIndex = [
   [
-    "./src/blip.mjs~blipcomponent",
+    "blip/src/blip.mjs~blipcomponent",
     "class/src/blip.mjs~BlipComponent.html",
-    "<span>BlipComponent</span> <span class=\"search-result-import-path\">./src/blip.mjs</span>",
+    "<span>BlipComponent</span> <span class=\"search-result-import-path\">blip/src/blip.mjs</span>",
     "class"
   ],
   [
-    "./src/blip.mjs~blipmanager",
+    "blip/src/blip.mjs~blipmanager",
     "variable/index.html#static-variable-BlipManager",
-    "<span>BlipManager</span> <span class=\"search-result-import-path\">./src/blip.mjs</span>",
+    "<span>BlipManager</span> <span class=\"search-result-import-path\">blip/src/blip.mjs</span>",
     "variable"
   ],
   [
-    "./src/blip.mjs~blipmanagersingleton",
+    "blip/src/blip.mjs~blipmanagersingleton",
     "class/src/blip.mjs~BlipManagerSingleton.html",
-    "<span>BlipManagerSingleton</span> <span class=\"search-result-import-path\">./src/blip.mjs</span>",
+    "<span>BlipManagerSingleton</span> <span class=\"search-result-import-path\">blip/src/blip.mjs</span>",
     "class"
   ],
   [
-    "./src/instancemarker.mjs~instancemarker",
+    "blip/src/instancemarker.mjs~instancemarker",
     "class/src/instanceMarker.mjs~InstanceMarker.html",
-    "<span>InstanceMarker</span> <span class=\"search-result-import-path\">./src/instanceMarker.mjs</span>",
+    "<span>InstanceMarker</span> <span class=\"search-result-import-path\">blip/src/instanceMarker.mjs</span>",
     "class"
   ],
   [
@@ -412,6 +412,12 @@ window.esdocSearchIndex = [
     "class/src/blip.mjs~BlipManagerSingleton.html#instance-method-untrack",
     "src/blip.mjs~BlipManagerSingleton#untrack",
     "method"
+  ],
+  [
+    "src/blip.mjs~blipmanagersingleton#version",
+    "class/src/blip.mjs~BlipManagerSingleton.html#instance-member-version",
+    "src/blip.mjs~BlipManagerSingleton#version",
+    "member"
   ],
   [
     "src/blip.mjs~blipmanagersingleton.center_screen_position",
