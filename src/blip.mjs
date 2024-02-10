@@ -112,7 +112,7 @@ class BlipManagerSingleton {
     activeBlips = [];
 
     constructor() {
-        this.interfaceHandle = (Math.random() * Math.PI / 2) + '-blip-interface';
+        this.interfaceHandle = 'blip-interface-' + (Math.random() * Math.PI / 2);
         // Create a logger
         /** The logger module this module uses to log errors / logs
          * @private
@@ -122,8 +122,6 @@ class BlipManagerSingleton {
         this.logger.registerType('BlipComponent-Module', '#ff6600');
         // Create the interface
         VYLO.Client.createInterface(this.interfaceHandle);
-        // Show the interface
-        VYLO.Client.showInterface(this.interfaceHandle);
         /**
          * Update loop for this blip manager to manage blips
          */
@@ -334,6 +332,10 @@ export class BlipComponent {
         BlipManager.track(blip);
         // Add a reference to the blip
         this.instance = blip;
+        // Show the interface if it isn't shown
+        if (!VYLO.Client.checkInterfaceShown(this.interfaceHandle)) {
+            VYLO.Client.showInterface(this.interfaceHandle);
+        }
     }
     /**
      * Removes this blip
