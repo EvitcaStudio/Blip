@@ -17,11 +17,6 @@ import { Blip } from './blip.mjs';
 window.BlipBundle.Blip;
 ```
 
-### CommonJS (CJS) Module
-
-```js
-const { Blip } = require('./blip.cjs.js');
-```
 ### Global Dependency
 
 Blip relies on the `VYLO` variable being globally accessible.
