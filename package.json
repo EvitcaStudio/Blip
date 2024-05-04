@@ -2,27 +2,29 @@
   "name": "blip",
   "version": "1.0.0",
   "description": "A plugin that will allow a blip representation of an instance that is offscreen to be shown and much more with customizable settings!",
-  "main": "dist/blip.min.mjs",
+  "main": "src/blip.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx webpack && npm run build:minify && node add-version-script.js && node add-banner-script.js",
-    "build:minify": "uglifyjs dist/blip.min.mjs -m -c --comments -o dist/blip.min.mjs",
-    "build:prod": "npx webpack --mode production && npm run build:minify && node add-version-script.js && node add-banner-script.js && npm run build:docs",
-    "build:docs": "esdoc -c esdoc.json"
+    "build:rollup": "npx rollup -c --failAfterWarnings",
+    "build:docs": "esdoc -c esdoc.json",
+    "build:dist": "npm run build:rollup && npm run build:docs"
   },
   "keywords": [],
   "author": "https://github.com/doubleactii",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/EvitcaStudio/Blip.git"
+    "url": "https://github.com/EvitcaStudio/Blip"
   },
   "devDependencies": {
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-terser": "^0.4.4",
     "esdoc": "^1.1.0",
     "esdoc-ecmascript-proposal-plugin": "^1.0.0",
     "esdoc-standard-plugin": "^1.0.0",
-    "uglify-js": "^3.17.4",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
+    "rollup": "^4.14.1",
+    "rollup-plugin-banner2": "^1.2.3",
+    "rollup-plugin-cleandir": "^2.0.0",
+    "rollup-plugin-replace": "^2.2.0"
   }
 }

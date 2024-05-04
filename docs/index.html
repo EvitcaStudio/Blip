@@ -37,7 +37,16 @@
 </div>
 </nav>
 
-<div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="blip">Blip</h1><p>A plugin that will allow a blip representation of an instance that is offscreen to be shown and much more with customizable settings!</p>
+<div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="blip-module">Blip Module</h1><p>A plugin that will allow a blip representation of an instance that is offscreen to be shown and much more with customizable settings!</p>
+<h2 id="installation">Installation</h2><h3 id="es-module">ES Module</h3><pre><code class="lang-js"><code class="source-code prettyprint">import { Blip } from &apos;./blip.mjs&apos;;</code>
+</code></pre>
+<h3 id="iife--immediately-invoked-function-expression-">IIFE (Immediately Invoked Function Expression)</h3><pre><code class="lang-js"><code class="source-code prettyprint">&lt;script src=&quot;blip.js&quot;&gt;&lt;/script&gt;;
+// ...
+window.BlipBundle.Blip;</code>
+</code></pre>
+<h3 id="commonjs--cjs--module">CommonJS (CJS) Module</h3><pre><code class="lang-js"><code class="source-code prettyprint">const { Blip } = require(&apos;./blip.cjs.js&apos;);</code>
+</code></pre>
+<h3 id="global-dependency">Global Dependency</h3><p>Blip relies on the <code>VYLO</code> variable being globally accessible.</p>
 </div>
 </div>
 

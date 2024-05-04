@@ -4,7 +4,8 @@ import { Collector } from './vendor/collector.min.mjs';
 
 class BlipManagerSingleton {
     /**
-     * The size of the game
+     * The size of the game.
+     * @private
      * @type {number}
      */
 	static GAME_SIZE = (() => {
@@ -15,14 +16,16 @@ class BlipManagerSingleton {
 		return { 'width': 960, 'height': 540 };
 	})();
     /**
-     * The size of the game halfed
+     * The size of the game halfed.
+     * @private
      * @type {number}
      */
 	static GAME_SIZE_HALF = (() => {
 		return { 'width': BlipManagerSingleton.GAME_SIZE.width / 2, 'height': BlipManagerSingleton.GAME_SIZE.height / 2 };
 	})();
     /**
-     * The center of the screen's coordinates (in pixels)
+     * The center of the screen's coordinates (in pixels).
+     * @private
      * @type {number}
      */
     static CENTER_SCREEN_POSITION = (() => {
@@ -30,26 +33,30 @@ class BlipManagerSingleton {
 	})();
     /**
      * The default tile size. This is used a backup value when an icon's width/height is not accessible.
+     * @private
      * @type {number}
      */
     static TILE_SIZE = 32;
     /**
-     * The maximum number of blips that can exist on the screen at once
+     * The maximum number of blips that can exist on the screen at once.
+     * @private
      * @type {number}
      */
     static MAX_BLIPS = 200;
     /**
-     * An array tracking all stored blips
+     * An array tracking all stored blips.
+     * @private
      * @type {Array}
      */
     static storedBlips = [];
 	/**
-	 * Gets the angle between two points
+	 * Gets the angle between two points.
 	 * 
-	 * @param {Object} pStartPoint - The starting point
-	 * @param {Object} pEndPoint - The ending point
-     * @param {boolean} pCenter - Whether to get the angle from the center of the points
-	 * @returns {number} The angle between the starting point and the ending point
+     * @private
+	 * @param {Object} pStartPoint - The starting point.
+	 * @param {Object} pEndPoint - The ending point.
+     * @param {boolean} pCenter - Whether to get the angle from the center of the points.
+	 * @returns {number} The angle between the starting point and the ending point.
 	 */
 	static getAngle(pStartPoint, pEndPoint, pCenter) {
         let y;
@@ -66,11 +73,12 @@ class BlipManagerSingleton {
 		return -Math.atan2(y, x) - Math.PI;
 	}
     /**
-     * API to get distance between points
-     * @param {Object} pStartPoint - The starting point
-     * @param {Object} pEndPoint - The ending point
-     * @param {boolean} pCenter - Whether to get the distance from the center of the points
-     * @returns {number} The distance between the two points
+     * API to get distance between points.
+     * @private
+     * @param {Object} pStartPoint - The starting point.
+     * @param {Object} pEndPoint - The ending point.
+     * @param {boolean} pCenter - Whether to get the distance from the center of the points.
+     * @returns {number} The distance between the two points.
      */
     static getDistance(pStartPoint, pEndPoint, pCenter) {
         let y;
@@ -87,9 +95,10 @@ class BlipManagerSingleton {
         return Math.sqrt(x * x + y * y);
     }
     /**
-     * Gets the direction of the angle passed
-     * @param {number} pAngle - The angle in radians to convert into a cardinal direction
-     * @returns The direction of the angle
+     * Gets the direction of the angle passed.
+     * @private
+     * @param {number} pAngle - The angle in radians to convert into a cardinal direction.
+     * @returns The direction of the angle.
      */
     static getDirection(pAngle) {
 		const degree = Math.abs(Math.floor(((pAngle * (180 / Math.PI)) / 45) + 0.5));
@@ -101,17 +110,26 @@ class BlipManagerSingleton {
 	 */
 	version = "VERSION_REPLACE_ME";
     /**
-     * Whether the manager is actively managing the state of blips
+     * Whether the manager is actively managing the state of blips.
+     * @private
      * @type {boolean}
      */
     paused = false;
     /**
-     * An array tracking all active blips (hidden or not)
+     * An array tracking all active blips (hidden or not).
+     * @private
      * @type {Array}
      */
     activeBlips = [];
-
+    /**
+     * @private
+     */
     constructor() {
+        /**
+         * The interface used to handle the blips.
+         * @type {string}
+         * @private
+         */
         this.interfaceHandle = 'blip-interface-' + (Math.random() * Math.PI / 2);
         // Create a logger
         /** The logger module this module uses to log errors / logs
@@ -123,7 +141,7 @@ class BlipManagerSingleton {
         // Create the interface
         VYLO.Client.createInterface(this.interfaceHandle);
         /**
-         * Update loop for this blip manager to manage blips
+         * Update loop for this blip manager to manage blips.
          */
         const self = this;
         const update = function() {
@@ -133,8 +151,8 @@ class BlipManagerSingleton {
         requestAnimationFrame(update);
     }
     /**
-     * Tracks a blip within the activeBlips array
-     * @param {Object} pBlip - The blip to track
+     * Tracks a blip within the activeBlips array.
+     * @param {Object} pBlip - The blip to track.
      */
     track(pBlip) {
         if (!this.activeBlips.includes(pBlip)) {
@@ -142,8 +160,8 @@ class BlipManagerSingleton {
         }
     }
     /**
-     * Untracks a blip from the activeBlips array
-     * @param {Object} pBlip - The blip to untrack
+     * Untracks a blip from the activeBlips array.
+     * @param {Object} pBlip - The blip to untrack.
      */
     untrack(pBlip) {
         if (this.activeBlips.includes(pBlip)) {
@@ -163,7 +181,8 @@ class BlipManagerSingleton {
         this.paused = false;
     }
     /**
-     * Method for updating the "state" of each blip
+     * Method for updating the "state" of each blip.
+     * @private
      */
     manageBlips() {
         // Do not manage blips when paused.

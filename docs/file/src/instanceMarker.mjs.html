@@ -40,10 +40,17 @@
 <div class="content" data-ice="content"><h1 data-ice="title">src/instanceMarker.mjs</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">export class InstanceMarker {
     /**
-     * This is distance at which the marker is removed from the screen. (Distance from the center of the screen)
+     * This is distance at which the marker is removed from the screen. (Distance from the center of the screen).
+     * @private
+     * @type {number}
      */
     static REMOVAL_DISTANCE = 50;
-    
+    /**
+     * @private
+     * @param {Object} pMapInstance - Instance settings.
+     * @param {Object} pIconSettings - Icon settings.
+     * @param {Object} pMarkerSettings - Marker settings.
+     */
     constructor(pMapInstance, pIconSettings = { &apos;atlasName&apos;: &apos;&apos;, &apos;iconName&apos;: &apos;&apos; }, pMarkerSettings = { &apos;showsDistance&apos;: false, &apos;removalDistance&apos;: InstanceMarker.REMOVAL_DISTANCE }) {
 
     }

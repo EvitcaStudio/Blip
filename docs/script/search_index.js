@@ -1,20 +1,20 @@
 window.esdocSearchIndex = [
   [
-    "blip/src/blip.mjs~blipcomponent",
+    "blip~blipcomponent",
     "class/src/blip.mjs~BlipComponent.html",
-    "<span>BlipComponent</span> <span class=\"search-result-import-path\">blip/src/blip.mjs</span>",
+    "<span>BlipComponent</span> <span class=\"search-result-import-path\">blip</span>",
     "class"
   ],
   [
-    "blip/src/blip.mjs~blipmanager",
+    "blip~blipmanager",
     "variable/index.html#static-variable-BlipManager",
-    "<span>BlipManager</span> <span class=\"search-result-import-path\">blip/src/blip.mjs</span>",
+    "<span>BlipManager</span> <span class=\"search-result-import-path\">blip</span>",
     "variable"
   ],
   [
-    "blip/src/blip.mjs~blipmanagersingleton",
+    "blip~blipmanagersingleton",
     "class/src/blip.mjs~BlipManagerSingleton.html",
-    "<span>BlipManagerSingleton</span> <span class=\"search-result-import-path\">blip/src/blip.mjs</span>",
+    "<span>BlipManagerSingleton</span> <span class=\"search-result-import-path\">blip</span>",
     "class"
   ],
   [
