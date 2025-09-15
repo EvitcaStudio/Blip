@@ -1,12 +1,4 @@
-interface IconSettings {
-    atlasName: string;
-    iconName: string;
-}
-
-interface MarkerSettings {
-    showsDistance: boolean;
-    removalDistance: number;
-}
+import { IconSettings, MarkerSettings } from './blip.js';
 
 export class InstanceMarker {
     /**

@@ -4,12 +4,12 @@ import { Logger } from './vendor/logger.min.mjs';
 // @ts-ignore - vendor files don't have type declarations
 import { Collector } from './vendor/collector.min.mjs';
 
-interface GameSize {
+export interface GameSize {
     width: number;
     height: number;
 }
 
-interface Point {
+export interface Point {
     x: number;
     y: number;
     icon?: {
@@ -18,24 +18,24 @@ interface Point {
     };
 }
 
-interface BlipSettings {
+export interface BlipSettings {
     buffer: number;
     showsDistance: boolean;
     maxDistance: number;
     alwaysOnTop?: boolean;
 }
 
-interface IconSettings {
+export interface IconSettings {
     atlasName: string;
     iconName: string;
 }
 
-interface MarkerSettings {
+export interface MarkerSettings {
     showsDistance: boolean;
     removalDistance: number;
 }
 
-interface BlipInstance {
+export interface BlipInstance {
     touchOpacity: number;
     mouseOpacity: number;
     preventAutoScale: boolean;
@@ -62,7 +62,7 @@ declare global {
     const scrM: any;
 }
 
-class BlipManagerSingleton {
+export class BlipManagerSingleton {
     /**
      * The size of the game.
      */
