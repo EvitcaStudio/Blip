@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A plugin that will allow a blip representation of an instance that is offscreen to be shown and much more with customizable settings!",
   "main": "dist/blip.js",
   "types": "dist/blip.d.ts",
