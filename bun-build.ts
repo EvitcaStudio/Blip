@@ -8,7 +8,7 @@ const banner = [
   ` * Compiled ${new Date().toUTCString().replace(/GMT/g, 'UTC')}`,
   ` * Copyright (c) ${new Date().getFullYear()} Evitca Studio, "doubleactii"`,
   ` *`,
-  ` * ${packageJson.name} is privately licensed.`,
+  ` * ${packageJson.name} is licensed under the MIT License. See LICENSE.md.`,
   ` */`,
 ].join('\n');
 

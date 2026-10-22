@@ -1,7 +1,5 @@
 import { InstanceMarker } from './instanceMarker.js';
 // @ts-ignore - vendor files don't have type declarations
-import { Logger } from './vendor/logger.min.mjs';
-// @ts-ignore - vendor files don't have type declarations
 import { Collector } from './vendor/collector.min.mjs';
 
 export interface GameSize {
@@ -18,11 +16,41 @@ export interface Point {
     };
 }
 
+export interface BlipViewport {
+    left?: number;
+    top?: number;
+    safeLeft?: number;
+    safeRight?: number;
+    safeTop?: number;
+    safeBottom?: number;
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+    zoomX: number;
+    zoomY: number;
+}
+
+export interface BlipTargetData {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    active: boolean;
+}
+
+export interface BlipInput {
+    isVisible?: () => boolean;
+    getViewport?: () => BlipViewport;
+    getTargetData?: (target: any) => BlipTargetData;
+}
+
 export interface BlipSettings {
     buffer: number;
     showsDistance: boolean;
     maxDistance: number;
     alwaysOnTop?: boolean;
+    input?: BlipInput;
 }
 
 export interface IconSettings {
@@ -47,7 +75,10 @@ export interface BlipInstance {
     settings: BlipSettings;
     plane?: number;
     layer?: number;
+    xIconOffset: number;
+    yIconOffset: number;
     angle: number;
+    scale?: { x: number; y: number };
     icon?: {
         width: number;
         height: number;
@@ -59,7 +90,6 @@ export interface BlipInstance {
 
 declare global {
     const VYLO: any;
-    const scrM: any;
 }
 
 export class BlipManagerSingleton {
@@ -162,7 +192,7 @@ export class BlipManagerSingleton {
     /**
      * The version of the module.
      */
-    version = "VERSION_REPLACE_ME";
+    version = "2.0.0";
     
     /**
      * Whether the manager is actively managing the state of blips.
@@ -179,36 +209,31 @@ export class BlipManagerSingleton {
      */
     interfaceHandle: string;
     
-    /**
-     * The logger module this module uses to log errors / logs
-     */
-    logger: Logger;
 
     constructor() {
         this.interfaceHandle = 'blip-interface-' + (Math.random() * Math.PI / 2);
-        // Create a logger
-        this.logger = new Logger();
-        this.logger.registerType('BlipComponent-Module', '#ff6600');
         // Create the interface
         VYLO.Client.createInterface(this.interfaceHandle);
         /**
          * Update loop for this blip manager to manage blips.
          */
-        const self = this;
-        const update = function() {
-            self.manageBlips();
-            requestAnimationFrame(update);
-        }
-        requestAnimationFrame(update);
+
     }
     
     /**
      * Tracks a blip within the activeBlips array.
      * @param pBlip - The blip to track.
      */
+    private frame: number | null = null;
+    private tick = (): void => {
+        this.frame = null;
+        this.manageBlips();
+        if (this.activeBlips.length) this.frame = requestAnimationFrame(this.tick);
+    };
     track(pBlip: BlipInstance): void {
         if (!this.activeBlips.includes(pBlip)) {
             this.activeBlips.push(pBlip);
+            if (this.frame === null) this.frame = requestAnimationFrame(this.tick);
         }
     }
     
@@ -219,6 +244,11 @@ export class BlipManagerSingleton {
     untrack(pBlip: BlipInstance): void {
         if (this.activeBlips.includes(pBlip)) {
             this.activeBlips.splice(this.activeBlips.indexOf(pBlip), 1);
+            if (!this.activeBlips.length && this.frame !== null) {
+                cancelAnimationFrame(this.frame);
+                this.frame = null;
+                VYLO.Client.hideInterface(this.interfaceHandle);
+            }
         }
     }
     
@@ -245,69 +275,65 @@ export class BlipManagerSingleton {
             return;
         }
         for (const blip of this.activeBlips) {
-            const blipIconWidth = blip.icon ? blip.icon.width : 32;
-            const blipIconHeight = blip.icon ? blip.icon.height : 32;
-
-            const mapInstanceIconWidth = blip.mapInstance.icon ? blip.mapInstance.icon.width : 32;
-            const mapInstanceHeight = blip.mapInstance.icon ? blip.mapInstance.icon.height : 32;
-            blip.mapInstance.getScreenPos(blip.screenPos);
-            // Get the position the blip should be placed at
-            const x = VYLO.Math.clamp((blip.screenPos.x + scrM.xMapPos + (mapInstanceIconWidth / 2) - blipIconWidth / VYLO.Client.mapView.scale.x) * VYLO.Client.mapView.scale.x, -blipIconWidth + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.width - blipIconWidth - blip.settings.buffer);
-            const y = VYLO.Math.clamp((blip.screenPos.y + scrM.yMapPos + (mapInstanceHeight / 2) - blipIconHeight / 2 / VYLO.Client.mapView.scale.y) * VYLO.Client.mapView.scale.y, (-blipIconHeight / 2) + blip.settings.buffer, BlipManagerSingleton.GAME_SIZE.height - (blipIconHeight / 2) - blip.settings.buffer);
-            // Check distance between map instance and client mob
-            const distance = Math.round(BlipManagerSingleton.getDistance(VYLO.Client.mob, blip.mapInstance, true));
-            // Check angle from client mob to map instance
-            const angle = BlipManagerSingleton.getAngle(VYLO.Client.mob, blip.mapInstance, true);
-            // Check the direction of the angle
-            const direction = BlipManagerSingleton.getDirection(angle);      
-            // Whether the blip will be shown or not
-            let showBlip = false;
-            // Setting the angle of the blip
-            blip.angle = angle;
-            // Setting the blip to the proper coordinates
-            blip.setPos(x, y);
-
-            if (distance < blip.settings.maxDistance) {
-                const furtherThanHalfHorizontalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.width - (mapInstanceIconWidth / 2)) / VYLO.Client.mapView.scale.x;
-                const furtherThanHalfVerticalScreenSize = distance >= (BlipManagerSingleton.GAME_SIZE_HALF.height - (mapInstanceHeight / 2)) / VYLO.Client.mapView.scale.y;
-                // Check the direction so we know whether to show the blip or not. Some directions make it so the formula changes on whether to show it or not
-                switch (direction) {
-                    case 'north':
-                    case 'south':
-                        if (furtherThanHalfVerticalScreenSize) {
-                            showBlip = true;
-                        }
-                        break;
-
-                    case 'east':
-                    case 'west':
-                        if (furtherThanHalfHorizontalScreenSize) {
-                            showBlip = true;
-                        }
-                        break;
-                    
-                    /**
-                     * @todo Fix issue where lower distance sometimes makes blip hide
-                     */
-                    case 'northwest':
-                    case 'northeast':
-                    case 'southwest':
-                    case 'southeast':
-                        if (furtherThanHalfHorizontalScreenSize || furtherThanHalfVerticalScreenSize) {
-                            showBlip = true;
-                        }
-                        break;
-                }
-            }
-
-            if (showBlip) {
-                blip.show();
-            } else {
+            const input = blip.settings.input;
+            if (input?.isVisible && !input.isVisible()) { blip.hide(); continue; }
+            const viewport = input?.getViewport?.() ?? (() => {
+                const size = VYLO.World.getGameSize();
+                const camera = VYLO.Client.getScreenPos(VYLO.Client.screenPos);
+                const zoom = VYLO.Client.mapView.zoom;
+                return { ...size, x: camera.x, y: camera.y, zoomX: zoom.x, zoomY: zoom.y };
+            })();
+            const size = viewport;
+            const camera = viewport;
+            const zoom = { x: viewport.zoomX, y: viewport.zoomY };
+            const target = blip.mapInstance;
+            const data = input?.getTargetData?.(target);
+            if (data ? !data.active : (!target.mapName || target.collectorCollected || target.dead || target.exploded ||
+                target.isCollected || target.removing || target.mapName !== VYLO.Client.mob?.mapName)) {
                 blip.hide();
+                continue;
             }
-            /**
-             * @todo Handle the distance text being shown
-             */
+            const center = data ?? target.iconPoints?.center?.getPoint(target.angle) ?? {
+                x: target.x + (target.icon?.width ?? 32) / 2,
+                y: target.y + (target.icon?.height ?? 32) / 2
+            };
+            const left = viewport.left ?? 0, top = viewport.top ?? 0;
+            const x = (center.x - camera.x) * zoom.x + left;
+            const y = (center.y - camera.y) * zoom.y + top;
+            const halfWidth = (data?.width ?? (target.icon?.width ?? 32) * Math.abs(target.scale?.x ?? 1)) * zoom.x / 2;
+            const halfHeight = (data?.height ?? (target.icon?.height ?? 32) * Math.abs(target.scale?.y ?? 1)) * zoom.y / 2;
+            const offscreen = x + halfWidth < left || x - halfWidth > left + size.width ||
+                y + halfHeight < top || y - halfHeight > top + size.height;
+            // Range measures world pixels beyond the viewport, so sonar works at every zoom.
+            const distance = Math.hypot(Math.max(0, left - x, x - left - size.width) / zoom.x,
+                Math.max(0, top - y, y - top - size.height) / zoom.y);
+            // Fit the actual rotated rectangle instead of a rotation-independent
+            // circle, which leaves a conspicuous gap at horizontal/vertical edges.
+            const halfW = (blip.icon?.width ?? 32) * Math.abs(blip.scale?.x ?? 1) / 2;
+            const halfH = (blip.icon?.height ?? 32) * Math.abs(blip.scale?.y ?? 1) / 2;
+            const minX = left + blip.settings.buffer + (viewport.safeLeft ?? 0);
+            const maxX = left + size.width - blip.settings.buffer - (viewport.safeRight ?? 0);
+            const minY = top + blip.settings.buffer + (viewport.safeTop ?? 0);
+            const maxY = top + size.height - blip.settings.buffer - (viewport.safeBottom ?? 0);
+            let angle = Math.atan2(y - (minY + maxY) / 2, x - (minX + maxX) / 2);
+            let markerX = 0, markerY = 0;
+            for (let step = 0; step < 24; step++) {
+                const extentX = Math.abs(Math.cos(angle)) * halfW + Math.abs(Math.sin(angle)) * halfH;
+                const extentY = Math.abs(Math.sin(angle)) * halfW + Math.abs(Math.cos(angle)) * halfH;
+                markerX = VYLO.Math.clamp(x, minX + extentX, maxX - extentX);
+                markerY = VYLO.Math.clamp(y, minY + extentY, maxY - extentY);
+                const next = Math.atan2(y - markerY, x - markerX);
+                if (Math.abs(next - angle) < 1e-10) { angle = next; break; }
+                angle = next;
+            }
+            // VYLO adds the source anchor to setPos, even for a centered anchor.
+            blip.xIconOffset = -(blip.icon?.width ?? 32) * blip.anchor.x;
+            blip.yIconOffset = -(blip.icon?.height ?? 32) * blip.anchor.y;
+            blip.setPos(markerX, markerY);
+            // Icons point right at zero; VYLO renders positive angles counterclockwise.
+            blip.angle = -Math.atan2(y - markerY, x - markerX);
+            if (offscreen && distance <= blip.settings.maxDistance) blip.show();
+            else blip.hide();
         }
     }
     
@@ -327,7 +353,7 @@ const BlipManager = new BlipManagerSingleton();
 /**
 * A Blip Component
 * @class BlipComponent
-* @version {@VERSION_REPLACE_ME}
+* @version {@2.0.0}
 * @license Blip does not have a license at this time. For licensing contact the author
 * @author https://github.com/doubleactii
 * Copyright (c) 2023 Evitca Studio
@@ -366,7 +392,6 @@ export class BlipComponent {
     constructor(pMapInstance: any, pIconSettings: IconSettings = { 'atlasName': '', 'iconName': '' }, pBlipSettings: BlipSettings = { 'buffer': BlipComponent.BUFFER, 'showsDistance': false, 'maxDistance': BlipComponent.MAX_DIST, 'alwaysOnTop': false }, pMarkerSettings?: MarkerSettings) {
        // Do not allow more than the max amount of blips to be created.
         if (BlipManager.activeBlips.length >= BlipManagerSingleton.MAX_BLIPS) {
-            BlipManager.logger.prefix('BlipComponent-Module').log('Max blip limit reached');
             return;
         }
 
@@ -375,7 +400,7 @@ export class BlipComponent {
         blip.touchOpacity = 0;
         blip.mouseOpacity = 0;
         blip.preventAutoScale = false;
-        blip.anchor.x = 1;
+        blip.anchor.x = 0.5;
         blip.anchor.y = 0.5;
         // Assigning icon data to the blip
         blip.atlasName = pIconSettings.atlasName;
@@ -385,6 +410,7 @@ export class BlipComponent {
         blip.screenPos = { x: 0, y: 0 };
         blip.settings = {
             // The padding between the blip and the screen
+            'input': pBlipSettings.input,
             'buffer': pBlipSettings.buffer,
             // Whether this blip will show its distance
             'showsDistance': pBlipSettings.showsDistance,
@@ -427,6 +453,9 @@ export class BlipComponent {
         if (this.instance) {
             this.instance.hide();
             BlipManager.untrack(this.instance);
+            this.instance.mapInstance = null;
+            Collector.collect(this.instance, BlipManagerSingleton.storedBlips);
+            this.instance = null;
         }
     }
 }

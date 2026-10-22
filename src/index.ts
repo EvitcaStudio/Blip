@@ -4,6 +4,9 @@ export {
     GameSize,
     Point,
     BlipSettings,
+    BlipInput,
+    BlipViewport,
+    BlipTargetData,
     IconSettings,
     MarkerSettings,
     BlipInstance
